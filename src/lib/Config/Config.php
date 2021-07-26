@@ -3,6 +3,8 @@
 
 namespace App\lib\Config;
 
+use RuntimeException;
+
 /**
  * Класс для работы с конфигами из папки config
  */
@@ -15,17 +17,23 @@ class Config implements IConfig
     {
         $path = realpath(BASE_DIR . "config");
         if (!$path || !is_dir($path)) {
-            throw new \RuntimeException("$path config dir must be a directory!");
+            throw new RuntimeException("$path config dir must be a directory!");
         }
         $this->path = $path;
         $this->parseFilesTree($this->path);
     }
 
+    /**
+     * Получить нужный объект из корня
+     */
     public function get(string $var): ConfigShard
     {
         return new ConfigShard($this->conf[$var] ?? null);
     }
 
+    /**
+     * Магический __get для использования массива как объекта
+     */
     public function __get(string $name)
     {
         return $this->get($name);
@@ -51,6 +59,7 @@ class Config implements IConfig
             $pathInfo    = pathinfo($fullFilePath);
             $parsed_info = match ($pathInfo['extension']) {
                 'yaml' => yaml_parse_file($fullFilePath),
+                'php' => include $fullFilePath
             };
             if (isset($parsed_info) && $parsed_info) {
                 $this->putData($fullFilePath, $parsed_info);
@@ -74,6 +83,9 @@ class Config implements IConfig
 
     }
 
+    /**
+     * Кладет данные по переданному пути в $this->conf
+     */
     private function putData(string $fullFilePath, $data)
     {
         $arrayPath = $this->getArrayPath($fullFilePath);

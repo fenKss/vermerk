@@ -5,21 +5,23 @@ namespace App;
 
 
 use App\lib\Config;
+use App\lib\Di\Container;
 
 class Kernel
 {
-    public function run()
+    private Container $container;
+
+    public function __construct()
     {
-        $this->initConfigs();
+        $this->container = new Container([
+            Config\DotenvConfig::class,
+            Config\Config::class
+        ]);
     }
 
-    /**
-     * Инициализирует конфиги
-     */
-    private function initConfigs(): void
+    public function run()
     {
-        (new Config\DotenvConfig());
-        (new Config\Config());
+
     }
 
 }
