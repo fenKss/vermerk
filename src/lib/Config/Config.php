@@ -8,29 +8,32 @@ namespace App\lib\Config;
  */
 class Config implements IConfig
 {
-    private const CONF_DIR = BASE_DIR . "config";
-    private $conf = [];
+    private array  $conf = [];
+    private string $path;
 
     public function __construct()
     {
-        $this->init();
-        dd($this->conf);
-    }
-
-    public function get($var)
-    {
-        // TODO: Implement get() method.
-    }
-
-    public function init()
-    {
-        $dir = realpath(self::CONF_DIR);
-        if (!$dir || !is_dir($dir)) {
-            throw new \RuntimeException("$dir config dir mus be a directory!");
+        $path = realpath(BASE_DIR . "config");
+        if (!$path || !is_dir($path)) {
+            throw new \RuntimeException("$path config dir must be a directory!");
         }
-        $this->parseFilesTree($dir);
+        $this->path = $path;
+        $this->parseFilesTree($this->path);
     }
 
+    public function get(string $var): ConfigShard
+    {
+        return new ConfigShard($this->conf[$var] ?? null);
+    }
+
+    public function __get(string $name)
+    {
+        return $this->get($name);
+    }
+
+    /**
+     * Парсит дерево папок и добавляет данные в $this->conf
+     */
     private function parseFilesTree(string $dir)
     {
         $files = scandir($dir);
@@ -46,7 +49,6 @@ class Config implements IConfig
                 continue;
             }
             $pathInfo    = pathinfo($fullFilePath);
-            $filename    = $pathInfo['filename'];
             $parsed_info = match ($pathInfo['extension']) {
                 'yaml' => yaml_parse_file($fullFilePath),
             };
@@ -56,23 +58,52 @@ class Config implements IConfig
         }
     }
 
+    /**
+     * Получаем массив из папок, которые должны отразиться в пути массива
+     */
     private function getArrayPath(string $filepath): array
     {
-        $filepath  = explode('.', $filepath)[0];
-        $basePath  = realpath(self::CONF_DIR);
-        $arrayPath = array_values(array_diff(explode('/', $filepath), explode('/', $basePath)));
-        return $arrayPath;
+        /**
+         * Оставляем только путь, обрезаем расширение
+         */
+        $filepath = explode('.', $filepath)[0];
+        /**
+         * Убираем лишние папки, которые могут быть, e.g название проекта, config
+         */
+        return array_values(array_diff(explode('/', $filepath), explode('/', $this->path)));
 
     }
 
     private function putData(string $fullFilePath, $data)
     {
-        $arrayPath  = $this->getArrayPath($fullFilePath);
-        var_dump($arrayPath);
-        $d = [];
-        for($i=count($arrayPath)-1; $i>0; $i--){
-//           $d[]
+        $arrayPath = $this->getArrayPath($fullFilePath);
+        /**
+         * Если в пути есть папки - формируем массив с хвоста
+         */
+        $data = $this->normalizePaths($arrayPath, $data);
+
+        $rootPath              = $arrayPath[0];
+        $this->conf[$rootPath] = array_merge_recursive($data, $this->conf[$rootPath] ?? []);
+    }
+
+    /**
+     * Нормализует пути в массиве e.g test/another/asd:{"data":"123"} -> [test][another][asd][data]=>123
+     */
+    private function normalizePaths(array $arrayPath, array $data): array
+    {
+        $arrayPathCount = count($arrayPath);
+        if ($arrayPathCount <= 1) {
+            return $data;
         }
-        $this->conf = $data;
+        /**
+         * Последний элемент должен содержать распаршенную инфу
+         */
+        $tempData[end($arrayPath)] = $data;
+        for ($i = $arrayPathCount - 2; $i > 0; $i--) {
+            /** Идем в обратном порядке и подменяем массивы что бы нормализовать пути */
+            $temp[$arrayPath[$i]] = $tempData;
+            $tempData             = $temp;
+        }
+        return $tempData;
     }
 }

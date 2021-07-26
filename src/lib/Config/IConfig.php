@@ -9,6 +9,6 @@ interface IConfig
     /**
      * Получение элемента из конфига
      */
-    public function get($var);
+    public function get(string $var);
 
 }
