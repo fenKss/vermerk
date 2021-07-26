@@ -3,7 +3,6 @@
 
 namespace App\lib\Di;
 
-
 use App\lib\Config\DotenvConfig;
 use ReflectionClass;
 use ReflectionException;
@@ -94,8 +93,16 @@ class Container
      */
     private function _getParameters(ReflectionClass $reflectionClass): array
     {
+
+        $constructor = $reflectionClass->getConstructor();
+        /**
+         * Если нет конструктора, то и параметров тоже нет
+         */
+        if (!$constructor) {
+            return [];
+        }
         $parameters = [];
-        foreach ($reflectionClass->getConstructor()->getParameters() as $parameter) {
+        foreach ($constructor->getParameters() as $parameter) {
             try {
                 $parameters[$parameter->getName()] = $parameter->getDefaultValue();
             } catch (ReflectionException) {
