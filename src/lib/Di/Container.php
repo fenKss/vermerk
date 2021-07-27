@@ -60,14 +60,25 @@ class Container
     private function _getValueFromParameter(ReflectionParameter $parameter)
     {
         $parameterType = (string)$parameter->getType();
+        /**
+         * Если это интерфейс - сначала получаем его реализацию
+         */
         if (interface_exists($parameterType)) {
             $parameterType = $this->_getInterfaceImplementation($parameterType);
         }
+        /**
+         * Если это класс - получаем его из контейнера
+         */
         if (class_exists($parameterType)) {
             return $this->get($parameterType);
         }
+        /**
+         * Если это обычное значение - берем из $_ENV
+         */
         $value = $this->get(DotenvConfig::class)->get($parameter->getName());
-
+        /**
+         * Не смогли найти что подставить
+         */
         if (is_null($value)) {
             throw new RuntimeException("Can't assign ($parameterType {$parameter->getName()}) value");
         }
@@ -77,7 +88,7 @@ class Container
     /**
      * Возвращает класс реализующий переданный интерфейс
      */
-    private function _getInterfaceImplementation(string $interfaceName): mixed
+    private function _getInterfaceImplementation(string $interfaceName): string
     {
         $interfaceImplementation = $this->interfaceMapping[$interfaceName] ?? null;
         if (is_null($interfaceImplementation)) {
@@ -93,7 +104,6 @@ class Container
      */
     private function _getParameters(ReflectionClass $reflectionClass): array
     {
-
         $constructor = $reflectionClass->getConstructor();
         /**
          * Если нет конструктора, то и параметров тоже нет
