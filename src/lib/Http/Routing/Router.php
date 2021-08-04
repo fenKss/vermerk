@@ -42,14 +42,14 @@ class Router
         $controllers = $this->controllerLoader->getControllers();
         $routes      = [];
         foreach ($controllers as $controller) {
-            $methods = $controller->getMethods();
-            $routes  = [];
+            $methods       = $controller->getMethods();
+            $controllerUrl = $this->getControllerUrl($controller);
             foreach ($methods as $method) {
                 foreach ($method->getAttributes() as $attribute) {
                     if ($attribute->getName() == Route::class) {
                         try {
                             $route = new Route(...$attribute->getArguments());
-                            $route->setController($controller->getName())->setMethod($method->getName());
+                            $route->setController($controller->getName())->setMethod($method->getName())->setUrl($controllerUrl . '/' . $route->getUrl());
                             $routes[] = $route;
                         } catch (\Throwable) {
                         }
@@ -147,40 +147,52 @@ class Router
      */
     private function addParamsToRoute(Route $route, Request $request): Route
     {
-        $url          = trim($request->getUrl(), '/');
-        $urlPath      = explode('/', $url);
-        $routeUrlPath = explode('/', $route->getUrl());
-        try {
-            $routeReflectionParams = ((new \ReflectionClass($route->getController()))->getMethod($route->getMethod())->getParameters());
-            $routeParams           = [];
-            foreach ($routeReflectionParams as $routeParam) {
-                $routeParams[$routeParam->getName()] = null;
-            }
-
-            foreach ($routeUrlPath as $position => $urlChunk) {
-                $isParameterChunk = $urlChunk[0] == '{' && $urlChunk[strlen($urlChunk) - 1] == "}";
-
-                if (!$isParameterChunk) {
-                    continue;
-                }
-                $chunk = ltrim($urlChunk, "{");
-                $chunk = rtrim($chunk, "}");
-
-                foreach ($routeParams as $name => $value) {
-                    if ($name == $chunk) {
-                        $route->setParam($name, $urlPath[$position] ?? null);
-                        $routeParams[$name] = $urlPath[$position];
-                    }
-                }
-
-            }
-            foreach ($routeParams as $name => $value) {
-                if (is_null($value)) {
-                    throw new \RuntimeException("Can't set route var $name from url $url");
-                }
-            }
-        } finally {
-            return $route;
+        $url                   = trim($request->getUrl(), '/');
+        $urlPath               = explode('/', $url);
+        $routeUrlPath          = explode('/', $route->getUrl());
+        $routeReflectionParams = ((new \ReflectionClass($route->getController()))->getMethod($route->getMethod())->getParameters());
+        $routeParams           = [];
+        foreach ($routeReflectionParams as $routeParam) {
+            $routeParams[$routeParam->getName()] = null;
         }
+
+        foreach ($routeUrlPath as $position => $urlChunk) {
+            $isParameterChunk = $urlChunk[0] == '{' && $urlChunk[strlen($urlChunk) - 1] == "}";
+
+            if (!$isParameterChunk) {
+                continue;
+            }
+            $chunk = ltrim($urlChunk, "{");
+            $chunk = rtrim($chunk, "}");
+
+            foreach ($routeParams as $name => $value) {
+                if ($name == $chunk) {
+                    $route->setParam($name, $urlPath[$position] ?? null);
+                    $routeParams[$name] = $urlPath[$position];
+                }
+            }
+
+        }
+        foreach ($routeParams as $name => $value) {
+            if (is_null($value)) {
+                throw new \RuntimeException("Can't set route param '\$$name' in {$route->getController()}::{$route->getMethod()}()");
+            }
+        }
+        return $route;
+    }
+
+    /**
+     * @param \ReflectionClass $reflectionController
+     *
+     * @return string
+     */
+    private function getControllerUrl(\ReflectionClass $reflectionController): string
+    {
+        foreach ($reflectionController->getAttributes() as $attribute) {
+            if ($attribute->getName() == Route::class) {
+                return (new Route(...$attribute->getArguments()))->getUrl();
+            }
+        }
+        return '';
     }
 }

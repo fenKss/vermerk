@@ -29,7 +29,6 @@ class Kernel
         $router   = $this->getContainer()->get(Router::class);
         $response = $router->dispatch($request);
         foreach ($response->getHeaders() as $header => $value) {
-//            var_dump($header, $value);
             header("$header: $value");
         }
         http_response_code($response->getStatusCode());
