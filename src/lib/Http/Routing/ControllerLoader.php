@@ -1,13 +1,14 @@
 <?php
 
 
-namespace App\lib;
+namespace App\lib\Http\Routing;
 
 
 use App\lib\Config\Config;
 use ReflectionClass;
+use ReflectionException;
 
-class ControllerService
+class ControllerLoader
 {
     private Config $config;
 
@@ -25,7 +26,6 @@ class ControllerService
         if (is_string($controllersDir)) {
             $this->_parseControllersTree($controllersDir);
         }
-
     }
 
     /**
@@ -40,16 +40,18 @@ class ControllerService
 
     /**
      * Получить Массив контроллеров, в которых можно искать необходимые Route
+     *
+     * @return array<ReflectionClass>
+     * @throws ReflectionException
      */
     public function getControllers(): array
     {
         $this->includeControllers();
-
         $controllers     = [];
         $declaredClasses = get_declared_classes();
         foreach ($declaredClasses as $declaredClass) {
             $reflectionClass = new ReflectionClass($declaredClass);
-            if ($this->_isClassController($reflectionClass)) {
+            if ($this->_isClassController($reflectionClass) && !$reflectionClass->isAbstract()) {
                 $controllers[] = $reflectionClass;
             }
         }

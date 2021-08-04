@@ -35,9 +35,9 @@ class Request
     /**
      * Возвращает метод запроса
      */
-    public function getMethod()
+    public function getMethod(): string
     {
-        return $_SERVER['REQUEST_METHOD'];
+        return mb_strtoupper($_SERVER['REQUEST_METHOD']);
     }
 
     /**
