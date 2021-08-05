@@ -11,12 +11,12 @@ class Route
     private string  $url;
     private ?string $controller;
     private ?string $method;
-    private array   $params;
+    private array   $params = [];
     private array   $requestMethods;
 
     public function __construct(string $url, array $requestMethods = [])
     {
-        $this->url        = $url;
+        $this->url            = $url;
         $this->requestMethods = $requestMethods;
     }
 
@@ -107,12 +107,23 @@ class Route
         $this->params[$key] = $value;
         return $this;
     }
-        /**
+
+    /**
+     * @param string $key
+     *
+     * @return $this
+     */
+    public function getParam(string $key): mixed
+    {
+        return $this->params[$key] ?? null;
+    }
+
+    /**
      * @return array
      */
     public function getRequestMethods(): array
     {
-        return array_map(function($method){
+        return array_map(function ($method) {
             return mb_strtoupper($method);
         }, $this->requestMethods);
     }

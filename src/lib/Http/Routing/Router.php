@@ -6,7 +6,10 @@ use App\lib\Di\Container;
 use App\lib\Http\Request;
 use App\lib\Http\Response\NotFoundResponse;
 use App\lib\Http\Response\Response;
+use ReflectionClass;
 use ReflectionException;
+use RuntimeException;
+use Throwable;
 
 class Router
 {
@@ -51,7 +54,7 @@ class Router
                             $route = new Route(...$attribute->getArguments());
                             $route->setController($controller->getName())->setMethod($method->getName())->setUrl($controllerUrl . '/' . $route->getUrl());
                             $routes[] = $route;
-                        } catch (\Throwable) {
+                        } catch (Throwable) {
                         }
                     }
                 }
@@ -147,46 +150,17 @@ class Router
      */
     private function addParamsToRoute(Route $route, Request $request): Route
     {
-        $url                   = trim($request->getUrl(), '/');
-        $urlPath               = explode('/', $url);
-        $routeUrlPath          = explode('/', $route->getUrl());
-        $routeReflectionParams = ((new \ReflectionClass($route->getController()))->getMethod($route->getMethod())->getParameters());
-        $routeParams           = [];
-        foreach ($routeReflectionParams as $routeParam) {
-            $routeParams[$routeParam->getName()] = null;
-        }
-
-        foreach ($routeUrlPath as $position => $urlChunk) {
-            $isParameterChunk = $urlChunk[0] == '{' && $urlChunk[strlen($urlChunk) - 1] == "}";
-
-            if (!$isParameterChunk) {
-                continue;
-            }
-            $chunk = ltrim($urlChunk, "{");
-            $chunk = rtrim($chunk, "}");
-
-            foreach ($routeParams as $name => $value) {
-                if ($name == $chunk) {
-                    $route->setParam($name, $urlPath[$position] ?? null);
-                    $routeParams[$name] = $urlPath[$position];
-                }
-            }
-
-        }
-        foreach ($routeParams as $name => $value) {
-            if (is_null($value)) {
-                throw new \RuntimeException("Can't set route param '\$$name' in {$route->getController()}::{$route->getMethod()}()");
-            }
-        }
+        $this->setRouteParamsFromUrl(trim($request->getUrl(), '/'), $route->getUrl(), $route);
+        $this->testAllParametersFilled($route);
         return $route;
     }
 
     /**
-     * @param \ReflectionClass $reflectionController
+     * @param ReflectionClass $reflectionController
      *
      * @return string
      */
-    private function getControllerUrl(\ReflectionClass $reflectionController): string
+    private function getControllerUrl(ReflectionClass $reflectionController): string
     {
         foreach ($reflectionController->getAttributes() as $attribute) {
             if ($attribute->getName() == Route::class) {
@@ -194,5 +168,45 @@ class Router
             }
         }
         return '';
+    }
+
+    /**
+     * @param Route $route
+     *
+     * @throws ReflectionException
+     */
+    private function testAllParametersFilled(Route $route)
+    {
+        $routeReflectionParams = ((new ReflectionClass($route->getController()))->getMethod($route->getMethod())->getParameters());
+        foreach ($routeReflectionParams as $param) {
+            $name  = $param->getName();
+            $value = $route->getParam($name);
+            if (is_null($value) && !$param->allowsNull()) {
+                if (!$param->isDefaultValueAvailable()) {
+                    throw new RuntimeException("Can't set route param '\$$name' in {$route->getController()}::{$route->getMethod()}()");
+                }
+                $route->setParam($name, $param->getDefaultValue());
+            }
+        }
+    }
+
+    private function setRouteParamsFromUrl(
+        string $url,
+        string $routeUrl,
+        Route  $route
+    ) {
+        $routeUrlPath = explode('/', $routeUrl);
+        $urlPath      = explode('/', $url);
+        foreach ($routeUrlPath as $position => $urlChunk) {
+            $isParameterChunk = ($urlChunk[0] ?? null) == '{' && $urlChunk[strlen($urlChunk) - 1] == "}";
+
+            if (!$isParameterChunk) {
+                continue;
+            }
+            $chunk = ltrim($urlChunk, "{");
+            $chunk = rtrim($chunk, "}");
+
+            $route->setParam($chunk, $urlPath[$position] ?? null);
+        }
     }
 }
