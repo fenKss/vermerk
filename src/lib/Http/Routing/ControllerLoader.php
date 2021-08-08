@@ -20,7 +20,7 @@ class ControllerLoader
     /**
      * Подгружает все php файлы, которые найдет в директории с контроллерами
      */
-    public function includeControllers()
+    public function includeControllers(): void
     {
         $controllersDir = $this->_getControllersDir();
         if (is_string($controllersDir)) {
@@ -135,7 +135,7 @@ class ControllerLoader
     /**
      * Парсит указанную директорию, и инклудит php файлы, которые найдет
      */
-    private function _parseControllersTree(string $dir)
+    private function _parseControllersTree(string $dir): void
     {
         $files = scandir($dir);
         foreach ($files as $file) {

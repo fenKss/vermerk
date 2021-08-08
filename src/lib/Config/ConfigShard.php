@@ -5,7 +5,6 @@ namespace App\lib\Config;
 
 class ConfigShard implements \ArrayAccess
 {
-    /** @var mixed $data */
     private mixed $data;
 
     public function __construct($data)
