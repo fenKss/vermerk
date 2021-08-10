@@ -15,10 +15,11 @@ class Kernel
 
     public function __construct()
     {
-        $this->container = new Container([
-                                             Config\DotenvConfig::class,
-                                             Config\Config::class
-                                         ]);
+        $singletons = [
+            Config\DotenvConfig::class,
+            Config\Config::class
+        ];
+        $this->container = new Container($singletons);
     }
 
     public function run()

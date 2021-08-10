@@ -5,7 +5,6 @@ namespace App\Controller\Main;
 
 
 use App\Controller\AbstractController;
-use App\lib\Http\Response\JsonResponse;
 use App\lib\Http\Response\Response;
 use App\lib\Http\Routing\Route;
 
@@ -13,7 +12,7 @@ use App\lib\Http\Routing\Route;
 class MainController extends AbstractController
 {
     #[Route(
-        '/test/{test_id}',
+        '/test/{test_id}/123',
         requestMethods: ['get']
     )]
     public function main(?int $test_id, int $some_id = 0): Response

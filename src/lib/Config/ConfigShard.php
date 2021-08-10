@@ -3,7 +3,12 @@
 
 namespace App\lib\Config;
 
-class ConfigShard implements \ArrayAccess
+use ArrayAccess;
+
+/**
+ * @property ConfigShard interface
+ */
+class ConfigShard implements ArrayAccess
 {
     private mixed $data;
 
@@ -12,7 +17,7 @@ class ConfigShard implements \ArrayAccess
         $this->data = $data;
     }
 
-    public function getData()
+    public function getData(): mixed
     {
         return $this->data;
     }
@@ -47,10 +52,10 @@ class ConfigShard implements \ArrayAccess
         return (string)$this->data;
     }
 
-    public function toArray()
+    public function toArray(): array
     {
         if (is_iterable($this->data)) {
-            return $this->data;
+            return (array)$this->data;
         }
         if (!is_null($this->data)) {
             return [$this->data];

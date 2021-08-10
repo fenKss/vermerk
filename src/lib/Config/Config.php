@@ -7,6 +7,8 @@ use RuntimeException;
 
 /**
  * Класс для работы с конфигами из папки config
+ *
+ * @property ConfigShard controllers
  */
 class Config implements IConfig
 {

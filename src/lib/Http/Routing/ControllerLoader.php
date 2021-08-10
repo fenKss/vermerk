@@ -75,7 +75,6 @@ class ControllerLoader
          */
         return ($inNamespace && $inInterface) || $isControllerName;
 
-
     }
 
     /*

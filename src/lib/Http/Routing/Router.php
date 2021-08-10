@@ -22,18 +22,16 @@ class Router
         $this->container        = $container;
     }
 
-    /**
-     * @throws ReflectionException
-     */
+
     public function dispatch(Request $request): Response
     {
-        $route = $this->getRoute($request);
-        if (!$route) {
+        try {
+            $route = $this->getRoute($request) ?? throw new \Exception();
+            $controller = $this->container->get($route->getController());
+            return $controller->{$route->getMethod()}(...$route->getParams());
+        }catch (\Exception $e){
             return new NotFoundResponse();
         }
-        $controller = $this->container->get($route->getController());
-        return $controller->{$route->getMethod()}(...$route->getParams());
-
     }
 
     /**

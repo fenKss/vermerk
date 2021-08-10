@@ -17,9 +17,9 @@ class DotenvConfig implements IConfig
     /**
      * @inheritDoc
      */
-    public function get($var)
+    public function get($var): ConfigShard
     {
-        return $_ENV[$var] ?? null;
+        return new ConfigShard($_ENV[$var] ?? null);
     }
 
     private function init(): void
