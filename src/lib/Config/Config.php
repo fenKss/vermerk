@@ -15,11 +15,11 @@ class Config implements IConfig
     private array  $conf = [];
     private string $path;
 
-    public function __construct()
+    public function __construct(string $dir = 'config')
     {
-        $path = realpath(BASE_DIR . "config");
+        $path = realpath(BASE_DIR . $dir);
         if (!$path || !is_dir($path)) {
-            throw new RuntimeException("$path config dir must be a directory!");
+            throw new RuntimeException(BASE_DIR . $dir." config dir must be a directory!");
         }
         $this->path = $path;
         $this->parseFilesTree($this->path);
