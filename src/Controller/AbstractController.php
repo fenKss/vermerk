@@ -4,6 +4,7 @@
 namespace App\Controller;
 
 
+use App\lib\Http\Response\JsonResponse;
 use App\lib\Http\Response\Response;
 use App\lib\Http\Response\RedirectResponse;
 
@@ -19,5 +20,10 @@ abstract class AbstractController implements IController
         array $params = []
     ): Response {
         return new Response($body);
+    }
+
+    public function json(array $body): JsonResponse
+    {
+        return new JsonResponse($body);
     }
 }

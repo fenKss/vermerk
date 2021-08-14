@@ -12,6 +12,6 @@ class HardController extends AbstractController
     #[Route('/{test_param}/test')]
     public function hard(int $test_param = 0): Response
     {
-        return $this->render($test_param);
+        return $this->json([$test_param]);
     }
 }
