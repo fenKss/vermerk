@@ -33,7 +33,7 @@ class Kernel
     public function dispatch(Request $request): Response
     {
         try {
-            $router = $this->container->get('router');
+            $router = $this->container->get(IRouter::class);
             $route = $router->getRoute($request) ?? throw new \Exception();
             $controller = $this->container->get($route->getController());
             return $controller->{$route->getMethod()}(...$route->getParams());
