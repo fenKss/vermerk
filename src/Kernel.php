@@ -8,10 +8,13 @@ use App\lib\Config;
 use App\lib\Di\Container;
 use App\lib\Http\IRequest;
 use App\lib\Http\Request;
+use App\lib\Http\Response\InternalErrorResponse;
 use App\lib\Http\Response\NotFoundResponse;
 use App\lib\Http\Response\Response;
 use App\lib\Http\Routing\IRouter;
 use App\lib\Http\Routing\Router;
+use Exception;
+use ReflectionException;
 
 class Kernel
 {
@@ -30,28 +33,36 @@ class Kernel
         $this->container = new Container($singletons, $interfaceMapping);
     }
 
+    /**
+     * @throws ReflectionException
+     */
     public function dispatch(Request $request): Response
     {
-        try {
-            $router = $this->container->get(IRouter::class);
-            $route = $router->getRoute($request) ?? throw new \Exception();
-            $controller = $this->container->get($route->getController());
-            return $controller->{$route->getMethod()}(...$route->getParams());
-        } catch (\Exception) {
+        $router = $this->container->get(IRouter::class);
+        $route = $router->getRoute($request);
+        if (!$route) {
             return new NotFoundResponse();
         }
+        $controller = $this->container->get($route->getController());
+        return $controller->{$route->getMethod()}(...$route->getParams());
+
     }
 
     public function run()
     {
-        /** @var Request $request */
-        $request = $this->getContainer()->get(IRequest::class);
-        $response = $this->dispatch($request);
-        foreach ($response->getHeaders() as $header => $value) {
-            header("$header: $value");
+        try {
+            /** @var Request $request */
+            $request = $this->getContainer()->get(IRequest::class);
+            $response = $this->dispatch($request);
+        } catch (Exception) {
+            $response = new InternalErrorResponse();
+        } finally {
+            foreach ($response->getHeaders() as $header => $value) {
+                header("$header: $value");
+            }
+            http_response_code($response->getStatusCode());
+            echo $response->getBody();
         }
-        http_response_code($response->getStatusCode());
-        echo $response->getBody();
     }
 
     public function getContainer(): Container
