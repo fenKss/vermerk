@@ -3,7 +3,7 @@
 namespace App\lib\Http\Routing;
 
 use App\lib\Di\Container;
-use App\lib\Http\Request;
+use App\lib\Http\IRequest;
 use App\lib\Http\Response\NotFoundResponse;
 use App\lib\Http\Response\Response;
 use ReflectionClass;
@@ -11,28 +11,15 @@ use ReflectionException;
 use RuntimeException;
 use Throwable;
 
-class Router
+class Router implements IRouter
 {
     private ControllerLoader $controllerLoader;
-    private Container        $container;
 
-    public function __construct(Container $container, ControllerLoader $controllerLoader)
+    public function __construct(ControllerLoader $controllerLoader)
     {
         $this->controllerLoader = $controllerLoader;
-        $this->container        = $container;
     }
 
-
-    public function dispatch(Request $request): Response
-    {
-        try {
-            $route = $this->getRoute($request) ?? throw new \Exception();
-            $controller = $this->container->get($route->getController());
-            return $controller->{$route->getMethod()}(...$route->getParams());
-        }catch (\Exception $e){
-            return new NotFoundResponse();
-        }
-    }
 
     /**
      * @return array<Route>
@@ -97,7 +84,7 @@ class Router
     /**
      * @throws ReflectionException
      */
-    private function getRoute(Request $request): ?Route
+    public function getRoute(IRequest $request): ?Route
     {
         $routes = $this->getRoutes();
         foreach ($routes as $route) {
@@ -109,23 +96,23 @@ class Router
     }
 
     /**
-     * @param Request $request
+     * @param IRequest $request
      * @param Route   $route
      *
      * @return bool
      */
-    private function testRequest(Request $request, Route $route): bool
+    private function testRequest(IRequest $request, Route $route): bool
     {
         return $this->testRequestMethod($request, $route) && $this->testUrl(trim($request->getUrl(), '/'), $route);
     }
 
     /**
-     * @param Request $request
+     * @param IRequest $request
      * @param Route   $route
      *
      * @return bool
      */
-    private function testRequestMethod(Request $request, Route $route): bool
+    private function testRequestMethod(IRequest $request, Route $route): bool
     {
         $allowedRequestMethods = $route->getRequestMethods();
         /**
@@ -141,12 +128,12 @@ class Router
      * Добавляет параметры из урла в роут
      *
      * @param Route   $route
-     * @param Request $request
+     * @param IRequest $request
      *
      * @return Route
      * @throws ReflectionException
      */
-    private function addParamsToRoute(Route $route, Request $request): Route
+    private function addParamsToRoute(Route $route, IRequest $request): Route
     {
         $this->setRouteParamsFromUrl(trim($request->getUrl(), '/'), $route->getUrl(), $route);
         $this->testAllParametersFilled($route);

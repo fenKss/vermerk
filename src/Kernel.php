@@ -6,7 +6,11 @@ namespace App;
 
 use App\lib\Config;
 use App\lib\Di\Container;
+use App\lib\Http\IRequest;
 use App\lib\Http\Request;
+use App\lib\Http\Response\NotFoundResponse;
+use App\lib\Http\Response\Response;
+use App\lib\Http\Routing\IRouter;
 use App\lib\Http\Routing\Router;
 
 class Kernel
@@ -19,16 +23,30 @@ class Kernel
             Config\DotenvConfig::class,
             Config\Config::class
         ];
-        $this->container = new Container($singletons);
+        $interfaceMapping = [
+            IRequest::class => Request::class,
+            IRouter::class => Router::class
+        ];
+        $this->container = new Container($singletons, $interfaceMapping);
+    }
+
+    public function dispatch(Request $request): Response
+    {
+        try {
+            $router = $this->container->get('router');
+            $route = $router->getRoute($request) ?? throw new \Exception();
+            $controller = $this->container->get($route->getController());
+            return $controller->{$route->getMethod()}(...$route->getParams());
+        } catch (\Exception) {
+            return new NotFoundResponse();
+        }
     }
 
     public function run()
     {
         /** @var Request $request */
-        $request = $this->getContainer()->get(Request::class);
-        /** @var Router $router */
-        $router   = $this->getContainer()->get(Router::class);
-        $response = $router->dispatch($request);
+        $request = $this->getContainer()->get(IRequest::class);
+        $response = $this->dispatch($request);
         foreach ($response->getHeaders() as $header => $value) {
             header("$header: $value");
         }

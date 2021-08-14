@@ -4,7 +4,7 @@
 namespace App\lib\Http;
 
 
-class Request
+class Request implements IRequest
 {
     /**
      * Получает переменную из запроса
@@ -49,7 +49,7 @@ class Request
     }
 
     /**
-     * get парметры в виде строки
+     * Get параметры в виде строки
      */
     public function getQuery(): string
     {

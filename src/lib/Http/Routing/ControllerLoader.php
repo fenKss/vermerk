@@ -29,7 +29,7 @@ class ControllerLoader
     }
 
     /**
-     * Возвращает директорию, где лежат контроллеры, операясь на namespace
+     * Возвращает директорию, где лежат контроллеры, опираясь на namespace
      */
     private function _getControllersDir(): bool|string
     {
@@ -90,7 +90,7 @@ class ControllerLoader
             return true;
         }
         /**
-         * Если в конфиге указан интейрфес - проверяем что класс его реализует
+         * Если в конфиге указан интерфейс - проверяем что класс его реализует
          */
         foreach ($reflectionController->getInterfaces() as $interface) {
             if ($interface->getName() == $interface) {
@@ -118,7 +118,7 @@ class ControllerLoader
     }
 
     /**
-     * Проверяет,заканчивается ли назвагиние класса на 'Controller'
+     * Проверяет, заканчивается ли название класса на 'Controller'
      */
     private function _isControllerName(
         string $class

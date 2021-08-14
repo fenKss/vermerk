@@ -4,13 +4,13 @@
   "license": "MIT",
   "autoload": {
     "psr-4": {
-      "App\\": "src/"
+      "App\\": "src/",
+      "Test\\": "tests/"
     },
     "classmap": [
       "src/"
     ]
   },
-
   "authors": [
     {
       "name": "Mihail Syursin",

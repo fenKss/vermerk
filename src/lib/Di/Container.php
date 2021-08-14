@@ -37,7 +37,10 @@ class Container
      */
     public function get(string $className)
     {
-        if (isset($this->singletons[$className]) && !is_null($this->singletons[$className])) {
+        if ($this->isMappedInterface($className)) {
+            $className = $this->interfaceMapping[$className];
+        }
+        if ($this->isSingleton($className) && !is_null($this->singletons[$className])) {
             return $this->singletons[$className];
         }
         return $this->_get($className);
@@ -49,7 +52,11 @@ class Container
     private function _get(string $className)
     {
         $reflectionClass = new ReflectionClass($className);
-        return new $className(...$this->_getParameters($reflectionClass));
+        $instance = new $className(...$this->_getParameters($reflectionClass));
+        if ($this->isSingleton($className)) {
+            $this->singletons[$className] = $instance;
+        }
+        return $instance;
     }
 
     /**
@@ -121,5 +128,15 @@ class Container
 
         }
         return $parameters;
+    }
+
+    private function isMappedInterface(string $interface): bool
+    {
+        return ($this->interfaceMapping[$interface] ?? null) && interface_exists($interface);
+    }
+
+    private function isSingleton(string $singleton): bool
+    {
+        return in_array($singleton, array_keys($this->singletons));
     }
 }
