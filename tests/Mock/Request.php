@@ -25,16 +25,12 @@ class Request extends \App\lib\Http\Request
      */
     public function getAll(): array
     {
-        switch (strtolower($this->getMethod())) {
-            case 'get':
-                return $this->get ?? [];
-            case 'post';
-                return $this->post ?? [];
-            case 'put':
-                return $this->put ?? [];
-            default:
-                return $this->get ?? $this->post ?? [];
-        }
+        return match (strtolower($this->getMethod())) {
+            'get' => $this->get ?? [],
+            'post' => $this->post ?? [],
+            'put' => $this->put ?? [],
+            default => $this->get ?? $this->post ?? [],
+        };
     }
 
 
@@ -66,7 +62,7 @@ class Request extends \App\lib\Http\Request
     }
 
     /**
-     * get парметры в виде строки
+     * @inheritDoc
      */
     public function getQuery(): string
     {

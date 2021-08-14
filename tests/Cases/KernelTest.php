@@ -1,11 +1,12 @@
 <?php
 
-namespace Test;
+namespace Test\Cases;
 
 use App\Kernel;
 use App\lib\Http\Response\JsonResponse;
 use App\lib\Http\Response\NotFoundResponse;
 use PHPUnit\Framework\TestCase;
+use ReflectionException;
 use Test\Mock\Container;
 use Test\Mock\Request;
 
@@ -14,12 +15,18 @@ class KernelTest extends TestCase
 
     private Kernel $kernel;
 
+    /**
+     * @throws ReflectionException
+     */
     public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName);
         $this->kernel = (new Container())->get(Kernel::class);
     }
 
+    /**
+     * @throws ReflectionException
+     */
     public function testDispatch()
     {
         $request = (new Request())->setUri('/hard/321/test');

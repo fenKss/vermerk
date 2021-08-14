@@ -1,12 +1,12 @@
 <?php
 
-namespace Test;
+namespace Test\Cases;
 
 use App\lib\Config\Config;
 use App\lib\Di\Container;
 use App\lib\Http\Routing\IRouter;
 use App\lib\Http\Routing\Router;
-use \PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\TestCase;
 use ReflectionException;
 
 final class ContainerTest extends TestCase
@@ -27,6 +27,9 @@ final class ContainerTest extends TestCase
 
     }
 
+    /**
+     * @throws ReflectionException
+     */
     public function testInterfaces()
     {
         $interfaceMapping = [
@@ -38,6 +41,9 @@ final class ContainerTest extends TestCase
 
     }
 
+    /**
+     * @throws ReflectionException
+     */
     public function testSingletons()
     {
         $singletons = [

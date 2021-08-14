@@ -2,6 +2,8 @@
 
 namespace Test\Mock;
 
+use App\lib\Config\Config;
+use App\lib\Config\DotenvConfig;
 use App\lib\Http\IRequest;
 use App\lib\Http\Routing\IRouter;
 use App\lib\Http\Routing\Router;
@@ -11,8 +13,8 @@ class Container extends \App\lib\Di\Container
     public function __construct()
     {
         $singletons = [
-            \App\lib\Config\DotenvConfig::class,
-            \App\lib\Config\Config::class
+            DotenvConfig::class,
+            Config::class
         ];
         $interfaceMapping = [
             IRequest::class => Request::class,
