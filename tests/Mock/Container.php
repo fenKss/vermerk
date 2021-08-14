@@ -1,6 +1,6 @@
 <?php
 
-namespace Test\Mock;
+namespace Mock;
 
 use App\lib\Config\Config;
 use App\lib\Config\DotenvConfig;

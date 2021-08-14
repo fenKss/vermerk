@@ -1,13 +1,13 @@
 <?php
 
-namespace Test\Cases;
+namespace Cases;
 
 use App\lib\Http\Routing\Route;
 use App\lib\Http\Routing\Router;
 use PHPUnit\Framework\TestCase;
 use ReflectionException;
-use Test\Mock\Container;
-use Test\Mock\Request;
+use Mock\Container;
+use Mock\Request;
 
 class RouterTest extends TestCase
 {
@@ -45,7 +45,7 @@ class RouterTest extends TestCase
         $request = (new Request())->setUri('/hard/321/test');
         $route = $this->router->getRoute($request);
         $this->assertTrue($route->getParam('test_param') == 321);
-        $this->assertTrue($route->getController() === 'Test\Controller\HardController');
+        $this->assertTrue($route->getController() === 'Controller\HardController');
     }
 
 }

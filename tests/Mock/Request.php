@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Test\Mock;
+namespace Mock;
 
 
 class Request extends \App\lib\Http\Request

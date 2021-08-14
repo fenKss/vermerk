@@ -1,6 +1,6 @@
 <?php
 
-namespace Test\Controller;
+namespace Controller;
 
 use App\Controller\AbstractController;
 use App\lib\Http\Response\Response;

@@ -1,14 +1,14 @@
 <?php
 
-namespace Test\Cases;
+namespace Cases;
 
 use App\Kernel;
 use App\lib\Http\Response\JsonResponse;
 use App\lib\Http\Response\NotFoundResponse;
 use PHPUnit\Framework\TestCase;
 use ReflectionException;
-use Test\Mock\Container;
-use Test\Mock\Request;
+use Mock\Container;
+use Mock\Request;
 
 class KernelTest extends TestCase
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Test\Cases;
+namespace Cases;
 
 use App\lib\Config\Config;
 use App\lib\Di\Container;
