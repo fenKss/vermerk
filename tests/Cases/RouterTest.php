@@ -2,11 +2,11 @@
 
 namespace Cases;
 
+use App\lib\Di\Container;
 use App\lib\Http\Routing\Route;
 use App\lib\Http\Routing\Router;
 use PHPUnit\Framework\TestCase;
 use ReflectionException;
-use Mock\Container;
 use Mock\Request;
 
 class RouterTest extends TestCase

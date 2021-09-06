@@ -3,11 +3,11 @@
 namespace Cases;
 
 use App\Kernel;
+use App\lib\Di\Container;
 use App\lib\Http\Response\JsonResponse;
 use App\lib\Http\Response\NotFoundResponse;
 use PHPUnit\Framework\TestCase;
 use ReflectionException;
-use Mock\Container;
 use Mock\Request;
 
 class KernelTest extends TestCase

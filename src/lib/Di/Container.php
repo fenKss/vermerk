@@ -24,7 +24,7 @@ class Container
     public function __construct()
     {
         $config = new Config();
-        $singletons = $config->container->singletons;
+        $singletons = $config->container->singletons ?? [];
         $this->interfaceMapping = (array)$config->container->interfaceMapping;
         foreach ($singletons as $singleton) {
             $this->singletons[$singleton] = null;

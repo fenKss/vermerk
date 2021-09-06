@@ -31,6 +31,10 @@ class Config implements IConfig
         return new ConfigShard($data);
     }
 
+    public function getEnv(): ?string
+    {
+        return strtoupper($this->env);
+    }
     /**
      * Магический __get для использования массива как объекта
      */

@@ -32,10 +32,7 @@ final class ContainerTest extends TestCase
      */
     public function testInterfaces()
     {
-        $interfaceMapping = [
-            IRouter::class => Router::class
-        ];
-        $container = new Container([], $interfaceMapping);
+        $container = new Container();
         $router = $container->get(IRouter::class);
         $this->assertInstanceOf(Router::class, $router);
 
@@ -46,10 +43,7 @@ final class ContainerTest extends TestCase
      */
     public function testSingletons()
     {
-        $singletons = [
-           Router::class
-        ];
-        $container = new Container($singletons);
+        $container = new Container();
         $router1 = $container->get(Router::class);
         $router2 = $container->get(Router::class);
         $this->assertTrue($router1 === $router2);

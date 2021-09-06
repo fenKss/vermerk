@@ -14,7 +14,9 @@ class ConfigShard extends \ArrayObject implements ArrayAccess
 
     public function __construct($data)
     {
-        parent::__construct($data);
+        if (is_array($data)) {
+            parent::__construct($data);
+        }
         $this->data = $data;
     }
 

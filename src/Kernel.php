@@ -30,6 +30,7 @@ class Kernel
     public function dispatch(Request $request): Response
     {
         $router = $this->container->get(IRouter::class);
+        /** @var IRouter $router */
         $route = $router->getRoute($request);
         if (!$route) {
             return new NotFoundResponse();

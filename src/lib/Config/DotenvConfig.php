@@ -19,10 +19,10 @@ class DotenvConfig implements IConfig
         return new ConfigShard($_ENV[$var] ?? null);
     }
 
-    public function init(): void
+    public function init(string $path = BASE_DIR): void
     {
         if (!self::$isInitialized) {
-            $this->dotenv = \Dotenv\Dotenv::createImmutable(BASE_DIR);
+            $this->dotenv = \Dotenv\Dotenv::createImmutable($path);
             $this->dotenv->load();
             self::$isInitialized = true;
         }
