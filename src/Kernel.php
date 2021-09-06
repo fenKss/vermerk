@@ -4,6 +4,7 @@
 namespace App;
 
 
+use Dotenv\Dotenv;
 use App\lib\Config;
 use App\lib\Di\Container;
 use App\lib\Http\IRequest;
@@ -12,8 +13,6 @@ use App\lib\Http\Response\InternalErrorResponse;
 use App\lib\Http\Response\NotFoundResponse;
 use App\lib\Http\Response\Response;
 use App\lib\Http\Routing\IRouter;
-use App\lib\Http\Routing\Router;
-use Exception;
 use ReflectionException;
 
 class Kernel
@@ -22,15 +21,7 @@ class Kernel
 
     public function __construct()
     {
-        $singletons = [
-            Config\DotenvConfig::class,
-            Config\Config::class
-        ];
-        $interfaceMapping = [
-            IRequest::class => Request::class,
-            IRouter::class => Router::class
-        ];
-        $this->container = new Container($singletons, $interfaceMapping);
+        $this->container = new Container();
     }
 
     /**
@@ -54,7 +45,8 @@ class Kernel
             /** @var Request $request */
             $request = $this->getContainer()->get(IRequest::class);
             $response = $this->dispatch($request);
-        } catch (Exception) {
+        } catch (\Throwable $e) {
+            error_log($e);
             $response = new InternalErrorResponse();
         } finally {
             foreach ($response->getHeaders() as $header => $value) {

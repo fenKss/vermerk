@@ -33,7 +33,7 @@ class ControllerLoader
      */
     private function _getControllersDir(): bool|string
     {
-        $controllersNamespace = $this->config->controllers->namespace->getData();
+        $controllersNamespace = $this->config->controllers->namespace;
         $controllersDir       = str_replace('App', 'src', str_replace('\\', '/', $controllersNamespace));
         return realpath(BASE_DIR . $controllersDir);
     }
@@ -82,7 +82,7 @@ class ControllerLoader
      */
     private function _isClassImplementControllerInterface(ReflectionClass $reflectionController): bool
     {
-        $interface = $this->config->controllers->interface->getData();
+        $interface = $this->config->controllers->interface;
         /**
          * Если в конфиге не указан интерфейс - то тогда говорим что мы его реализуем
          */
@@ -107,7 +107,7 @@ class ControllerLoader
     private function _isClassInControllerNamespace(
         ReflectionClass $reflectionController
     ): bool {
-        $namespace = $this->config->controllers->namespace->getData();
+        $namespace = $this->config->controllers->namespace;
         /**
          * Namespace должен быть указан. Если его нет - то и контроллер не в нем
          */

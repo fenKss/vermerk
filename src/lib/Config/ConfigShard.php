@@ -8,12 +8,13 @@ use ArrayAccess;
 /**
  * @property ConfigShard interface
  */
-class ConfigShard implements ArrayAccess
+class ConfigShard extends \ArrayObject implements ArrayAccess
 {
     private mixed $data;
 
     public function __construct($data)
     {
+        parent::__construct($data);
         $this->data = $data;
     }
 
@@ -24,7 +25,11 @@ class ConfigShard implements ArrayAccess
 
     public function __get(string $name)
     {
-        return new self($this->data[$name] ?? null);
+        $data = $this->data[$name] ?? null;
+        if (is_array($data)) {
+            return new self($data);
+        }
+        return $data;
     }
 
     public function offsetExists($offset): bool

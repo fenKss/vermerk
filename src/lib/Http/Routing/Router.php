@@ -4,8 +4,6 @@ namespace App\lib\Http\Routing;
 
 use App\lib\Di\Container;
 use App\lib\Http\IRequest;
-use App\lib\Http\Response\NotFoundResponse;
-use App\lib\Http\Response\Response;
 use ReflectionClass;
 use ReflectionException;
 use RuntimeException;
@@ -14,10 +12,12 @@ use Throwable;
 class Router implements IRouter
 {
     private ControllerLoader $controllerLoader;
+    private Container $container;
 
-    public function __construct(ControllerLoader $controllerLoader)
+    public function __construct(ControllerLoader $controllerLoader, Container $container)
     {
         $this->controllerLoader = $controllerLoader;
+        $this->container = $container;
     }
 
 
@@ -166,11 +166,17 @@ class Router implements IRouter
         foreach ($routeReflectionParams as $param) {
             $name  = $param->getName();
             $value = $route->getParam($name);
-            if (is_null($value) && !$param->allowsNull()) {
-                if (!$param->isDefaultValueAvailable()) {
-                    throw new RuntimeException("Can't set route param '\$$name' in {$route->getController()}::{$route->getMethod()}()");
+            if (!$route->isParamExist($name) || (is_null($value) && !$param->allowsNull())) {
+                if ($param->isDefaultValueAvailable()) {
+                    $route->setParam($name, $param->getDefaultValue());
+                }elseif ($param->allowsNull()){
+                    $route->setParam($name, null);
+                }else{
+                    $value = $this->container->get($param->getType()->getName());
+                    $route->setParam($name, $value);
+//                    throw new RuntimeException("Can't set route param '$$name' in {$route->getController()}::{$route->getMethod()}()");
                 }
-                $route->setParam($name, $param->getDefaultValue());
+
             }
         }
     }

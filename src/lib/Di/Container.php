@@ -3,6 +3,7 @@
 
 namespace App\lib\Di;
 
+use App\lib\Config\Config;
 use App\lib\Config\DotenvConfig;
 use ReflectionClass;
 use ReflectionException;
@@ -20,12 +21,11 @@ class Container
      */
     private array $interfaceMapping;
 
-    public function __construct(
-        array $singletons = [],
-        array $interfaceMapping = [],
-    ) {
-
-        $this->interfaceMapping = $interfaceMapping;
+    public function __construct()
+    {
+        $config = new Config();
+        $singletons = $config->container->singletons;
+        $this->interfaceMapping = (array)$config->container->interfaceMapping;
         foreach ($singletons as $singleton) {
             $this->singletons[$singleton] = null;
         }
@@ -52,7 +52,7 @@ class Container
     private function _get(string $className)
     {
         $reflectionClass = new ReflectionClass($className);
-        $instance = new $className(...$this->_getParameters($reflectionClass));
+        $instance        = new $className(...$this->_getParameters($reflectionClass));
         if ($this->isSingleton($className)) {
             $this->singletons[$className] = $instance;
         }

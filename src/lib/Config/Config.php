@@ -3,7 +3,6 @@
 
 namespace App\lib\Config;
 
-use RuntimeException;
 
 /**
  * Класс для работы с конфигами из папки config
@@ -14,14 +13,12 @@ class Config implements IConfig
 {
     private array  $conf = [];
     private string $path;
+    private ?string $env;
 
-    public function __construct(string $dir = 'config')
+    public function __construct()
     {
-        $path = realpath(BASE_DIR . $dir);
-        if (!$path || !is_dir($path)) {
-            throw new RuntimeException(BASE_DIR . $dir." config dir must be a directory!");
-        }
-        $this->path = $path;
+        $this->env = $_ENV['ENV'] ?? $_ENV['env'] ?? null;
+        $this->path = realpath(BASE_DIR . 'config');
         $this->parseFilesTree($this->path);
     }
 
@@ -30,7 +27,8 @@ class Config implements IConfig
      */
     public function get(string $var): ConfigShard
     {
-        return new ConfigShard($this->conf[$var] ?? null);
+        $data = $this->conf[$this->env][$var] ?? $this->conf[$var] ?? null;
+        return new ConfigShard($data);
     }
 
     /**

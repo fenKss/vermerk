@@ -139,4 +139,9 @@ class Route
         return $this;
     }
 
+    public function isParamExist(string $name): bool
+    {
+        return isset($this->params[$name]);
+    }
+
 }

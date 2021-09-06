@@ -8,11 +8,8 @@ namespace App\lib\Config;
  */
 class DotenvConfig implements IConfig
 {
-
-    public function __construct()
-    {
-        $this->init();
-    }
+    public static bool      $isInitialized = false;
+    private ?\Dotenv\Dotenv $dotenv        = null;
 
     /**
      * @inheritDoc
@@ -22,9 +19,13 @@ class DotenvConfig implements IConfig
         return new ConfigShard($_ENV[$var] ?? null);
     }
 
-    private function init(): void
+    public function init(): void
     {
-        $dotenv = \Dotenv\Dotenv::createImmutable(BASE_DIR);
-        $dotenv->load();
+        if (!self::$isInitialized) {
+            $this->dotenv = \Dotenv\Dotenv::createImmutable(BASE_DIR);
+            $this->dotenv->load();
+            self::$isInitialized = true;
+        }
+
     }
 }
