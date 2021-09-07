@@ -3,9 +3,6 @@
 
 namespace App;
 
-
-use Dotenv\Dotenv;
-use App\lib\Config;
 use App\lib\Di\Container;
 use App\lib\Http\IRequest;
 use App\lib\Http\Request;

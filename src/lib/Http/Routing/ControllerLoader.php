@@ -71,7 +71,6 @@ class ControllerLoader
         /**
          * Если и интерфейс класс реализует, и по namespace подходит - значит это то, что нам нужно
          * Если название заканчивается на Controller - возможно тоже подойдет
-         *
          */
         return ($inNamespace && $inInterface) || $isControllerName;
 
@@ -120,15 +119,9 @@ class ControllerLoader
     /**
      * Проверяет, заканчивается ли название класса на 'Controller'
      */
-    private function _isControllerName(
-        string $class
-    ): bool {
-        $controller = 'Controller';
-        /** Php < 8.0
-         * return substr_compare($class, $controller, strlen($class) - strlen($controller), strlen($controller)) === 0;
-         */
-        return str_ends_with($class, $controller);
-
+    private function _isControllerName(string $class): bool
+    {
+        return str_ends_with($class, 'Controller');
     }
 
     /**
@@ -146,7 +139,8 @@ class ControllerLoader
                 $this->_parseControllersTree($fullFilename);
                 continue;
             }
-            if (pathinfo($fullFilename)['extension']) {
+            $pathInfo = pathinfo($fullFilename);
+            if (($pathInfo['extension'] ?? null) === 'php') {
                 require_once $fullFilename;
             }
         }
