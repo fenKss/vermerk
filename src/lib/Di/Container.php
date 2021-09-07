@@ -19,13 +19,13 @@ class Container
     /**
      * @var array<string>
      */
-    private array $interfaceMapping;
+    private Iterable $interfaceMapping;
 
     public function __construct()
     {
         $config = new Config();
         $singletons = $config->container->singletons ?? [];
-        $this->interfaceMapping = (array)$config->container->interfaceMapping;
+        $this->interfaceMapping = $config->container->interfaceMapping;
         foreach ($singletons as $singleton) {
             $this->singletons[$singleton] = null;
         }
@@ -40,7 +40,7 @@ class Container
         if ($this->isMappedInterface($className)) {
             $className = $this->interfaceMapping[$className];
         }
-        if ($this->isSingleton($className) && !is_null($this->singletons[$className])) {
+        if ($this->isSingleton($className) && $this->isSingletonExist($className)) {
             return $this->singletons[$className];
         }
         return $this->_get($className);
@@ -138,5 +138,10 @@ class Container
     private function isSingleton(string $singleton): bool
     {
         return in_array($singleton, array_keys($this->singletons));
+    }
+
+    private function isSingletonExist(string $className): bool
+    {
+        return !is_null($this->singletons[$className]);
     }
 }

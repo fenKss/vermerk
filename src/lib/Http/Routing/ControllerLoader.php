@@ -33,10 +33,9 @@ class ControllerLoader
      */
     private function _getControllersDir(): bool|string
     {
-        $controllersNamespace = $this->config->controllers->namespace;
-        $replace = $this->config->getEnv() == 'TEST' ? 'tests' : 'src';
-        $controllersDir       = str_replace('App', $replace, str_replace('\\', '/', $controllersNamespace));
-        return realpath(BASE_DIR . $controllersDir);
+        $path = $this->config->controllers->path;
+
+        return $path ? BASE_DIR . $path : false;
     }
 
     /**
